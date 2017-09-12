@@ -1,6 +1,7 @@
 ﻿using System;
 using Exoft.Security.OAuthServer.Core;
 using Exoft.Security.OAuthServer.Extensions;
+using Exoft.Security.OAuthServer.Samples.AuthProviders;
 using Exoft.Security.OAuthServer.Samples.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,16 +46,22 @@ namespace Exoft.Security.OAuthServer.Samples
                     Id = 1,
                     Username = "Markiyan Skolozdra",
                     Role = "Administrator",
-                    Password = "P@ssw0rd"
+                    Password = "P@ssw0rd",
+                    Secret = "sD3fPKLnFKZUjnSV4qA/XoJOqsmDfNfxWcZ7kPtLc0I=" // SHA hash of Password - only for testing
                 });
-            var configs = new TestAuthConfiguration { Scope = "openid offline_access" };
+            var configs = new TestAuthConfiguration
+            {
+                Scope = "openid offline_access",
+                AccessTokenLifetimeMinutes = 120,
+                RefreshTokenLifetimeMinutes = 30
+            };
             app.UseExoftOAuthServer(new ExoftOAuthServerOptions(authService, configs)
             {
                 //Provider = new CustomAuthorizationProvider(authService, configs),
                 TokenEndpointPath = "/token",
                 AllowInsecureHttp = true,
-                AccessTokenLifetime = TimeSpan.FromHours(2),
-                RefreshTokenLifetime = TimeSpan.FromMinutes(30)
+                AccessTokenLifetime = TimeSpan.FromMinutes(configs.AccessTokenLifetimeMinutes),
+                RefreshTokenLifetime = TimeSpan.FromMinutes(configs.RefreshTokenLifetimeMinutes)
             });
 
             #endregion

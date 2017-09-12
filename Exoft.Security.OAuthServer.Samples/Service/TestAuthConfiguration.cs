@@ -9,5 +9,8 @@ namespace Exoft.Security.OAuthServer.Samples.Service
     public class TestAuthConfiguration:IAuthenticationConfiguration
     {
         public string Scope { get; set; }
+
+        public float AccessTokenLifetimeMinutes { get; set; }
+        public float RefreshTokenLifetimeMinutes { get; set; }
     }
 }

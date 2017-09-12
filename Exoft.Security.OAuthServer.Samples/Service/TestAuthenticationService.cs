@@ -54,6 +54,19 @@ namespace Exoft.Security.OAuthServer.Samples.Service
                    string.Equals(password, user.Password, StringComparison.Ordinal);
         }
 
+        public bool ValidateRequestedClientCredentials(IUser user, string clientId, string clientSecret)
+        {
+            return string.Equals(clientId, user.Id.ToString(), StringComparison.Ordinal) &&
+                   string.Equals(clientSecret, user.Secret, StringComparison.Ordinal);
+        }
+
+        //public bool ValidateRequestedClientCredentials(string clientId, string clientSecret)
+        //{
+        //    return FindUser(u=> 
+        //            clientId.Equals(u.Id.ToString(), StringComparison.Ordinal)
+        //            && u.Secret.Equals(clientSecret, StringComparison.Ordinal)) != null;
+        //}
+
         public IRefreshToken AddRefreshToken(string tokenIdentifier, int userId, string clientId, DateTime issuedUtc, DateTime expiresUtc)
         {
             var refreshToken = new RefreshToken
