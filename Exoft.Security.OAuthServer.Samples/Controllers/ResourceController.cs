@@ -1,14 +1,18 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 namespace Exoft.Security.OAuthServer.Samples.Controllers
 {
+    [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Roles = "Administrator")]
     [Route("api")]
     public class ResourceController : Controller
     {
-        [Authorize(Roles = "Administrator"), HttpGet, Route("message")]
+        [HttpGet, Route("message")]
         public IActionResult GetMessage()
         {
             var identity = User.Identity as ClaimsIdentity;

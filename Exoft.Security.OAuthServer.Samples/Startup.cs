@@ -1,45 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Exoft.Security.OAuthServer.Core;
-using Exoft.Security.OAuthServer.Extensions;
-using Exoft.Security.OAuthServer.Samples.AuthProviders;
+using Exoft.Security.OAuthServer.Providers;
 using Exoft.Security.OAuthServer.Samples.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Exoft.Security.OAuthServer.Samples
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddMvc();
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        //TODO: add fetching implemented AuthService by dependency injection (similar to samples with ASP .NET Identity)
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-        {
-            #region Using Exoft.Security.OAuth
-
-            app.UseOAuthValidation();
-
+            #region TEST DATA
             var authService = new TestAuthenticationService(
                 new User
                 {
@@ -55,16 +42,48 @@ namespace Exoft.Security.OAuthServer.Samples
                 AccessTokenLifetimeMinutes = 120,
                 RefreshTokenLifetimeMinutes = 30
             };
-            app.UseExoftOAuthServer(new ExoftOAuthServerOptions(authService, configs)
-            {
-                //Provider = new CustomAuthorizationProvider(authService, configs),
-                TokenEndpointPath = "/token",
-                AllowInsecureHttp = true,
-                AccessTokenLifetime = TimeSpan.FromMinutes(configs.AccessTokenLifetimeMinutes),
-                RefreshTokenLifetime = TimeSpan.FromMinutes(configs.RefreshTokenLifetimeMinutes)
-            });
 
             #endregion
+
+            services.AddAuthentication().AddOAuthValidation()
+
+            .AddOpenIdConnectServer(options =>
+            {
+                //options.ProviderType = typeof(CustomAuthorizationProvider);
+                options.ProviderType = typeof(ExoftOAuthServerProvider);
+
+                // Enable the authorization, logout, token and userinfo endpoints.
+                options.TokenEndpointPath = "/token";
+                options.AccessTokenLifetime = TimeSpan.FromMinutes(configs.AccessTokenLifetimeMinutes);
+                options.RefreshTokenLifetime = TimeSpan.FromMinutes(configs.RefreshTokenLifetimeMinutes);
+
+                // Note: see AuthorizationController.cs for more
+                // information concerning ApplicationCanDisplayErrors.
+                options.ApplicationCanDisplayErrors = true;
+                options.AllowInsecureHttp = true;
+            });
+
+            //services.AddScoped<CustomAuthorizationProvider>();
+            services.AddScoped<ExoftOAuthServerProvider>();
+
+            services.AddSingleton<IAuthenticationService>(p => authService);
+            services.AddSingleton<IAuthenticationConfiguration>(p => configs);
+
+            //services.AddTransient<IAuthenticationService, TestAuthenticationService>();
+            //services.AddTransient<IAuthenticationConfiguration, TestAuthConfiguration>();
+
+            services.AddMvc();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseAuthentication();
 
             app.UseMvc();
         }

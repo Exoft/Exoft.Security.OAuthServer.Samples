@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Exoft.Security.OAuthServer.Providers;
+﻿using Exoft.Security.OAuthServer.Providers;
 
 namespace Exoft.Security.OAuthServer.Samples.Service
 {
@@ -12,5 +8,12 @@ namespace Exoft.Security.OAuthServer.Samples.Service
 
         public float AccessTokenLifetimeMinutes { get; set; }
         public float RefreshTokenLifetimeMinutes { get; set; }
+
+        public TestAuthConfiguration()
+        {
+            Scope = "openid offline_access";
+            AccessTokenLifetimeMinutes = 120;
+            RefreshTokenLifetimeMinutes = 30;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Exoft.Security.OAuthServer.Samples.Service
         public IUser CurrentUser { get; set; }
 
         private int _refreshTokenIdIncrementer = 1;
-        private int _userIdIncrementer = 2;
+        private int _userIdIncrementer = 1;
 
         public List<IUser> Users { get; set; }
 
@@ -31,6 +31,7 @@ namespace Exoft.Security.OAuthServer.Samples.Service
         {
             CurrentUser = user;
             Users.Add(user);
+            _userIdIncrementer++;
         }
 
         public IUser FindUser(Func<IUser, bool> predicate)
