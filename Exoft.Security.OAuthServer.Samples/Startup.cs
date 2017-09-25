@@ -38,7 +38,7 @@ namespace Exoft.Security.OAuthServer.Samples
                 });
             var configs = new TestAuthConfiguration
             {
-                Scope = "openid offline_access",
+                RequestScope = "openid offline_access",
                 AccessTokenLifetimeMinutes = 120,
                 RefreshTokenLifetimeMinutes = 30
             };
@@ -53,6 +53,7 @@ namespace Exoft.Security.OAuthServer.Samples
                 options.ProviderType = typeof(ExoftOAuthServerProvider);
 
                 // Enable the authorization, logout, token and userinfo endpoints.
+                //options.AuthorizationEndpointPath = "/authorize";
                 options.TokenEndpointPath = "/token";
                 options.AccessTokenLifetime = TimeSpan.FromMinutes(configs.AccessTokenLifetimeMinutes);
                 options.RefreshTokenLifetime = TimeSpan.FromMinutes(configs.RefreshTokenLifetimeMinutes);

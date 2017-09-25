@@ -4,14 +4,13 @@ namespace Exoft.Security.OAuthServer.Samples.Service
 {
     public class TestAuthConfiguration:IAuthenticationConfiguration
     {
-        public string Scope { get; set; }
-
-        public float AccessTokenLifetimeMinutes { get; set; }
-        public float RefreshTokenLifetimeMinutes { get; set; }
+        public int AccessTokenLifetimeMinutes { get; set; }
+        public int RefreshTokenLifetimeMinutes { get; set; }
+        public string RequestScope { get; set; }
 
         public TestAuthConfiguration()
         {
-            Scope = "openid offline_access";
+            RequestScope = "openid offline_access";
             AccessTokenLifetimeMinutes = 120;
             RefreshTokenLifetimeMinutes = 30;
         }
